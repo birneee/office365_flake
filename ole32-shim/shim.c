@@ -419,9 +419,12 @@ static void resolve_winrt(void)
     HMODULE cb = GetModuleHandleA("combase.dll");
     if (!cb) cb = LoadLibraryA("combase.dll");
     if (!cb) return;
-    p_WindowsGetStringRawBuffer = (pWindowsGetStringRawBuffer)real_GetProcAddress(cb, "WindowsGetStringRawBuffer");
-    p_WindowsCreateString = (pWindowsCreateString)real_GetProcAddress(cb, "WindowsCreateString");
-    real_RoGetActivationFactory = (pRoGetActivationFactory)real_GetProcAddress(cb, "RoGetActivationFactory");
+    /* the passive instance (see DllMain) never sets real_GetProcAddress, but combase still calls its
+     * DllGetActivationFactory for the Windows.Web.Http stand-ins; its imports are unpatched there */
+    pGetProcAddress gpa = real_GetProcAddress ? real_GetProcAddress : GetProcAddress;
+    p_WindowsGetStringRawBuffer = (pWindowsGetStringRawBuffer)gpa(cb, "WindowsGetStringRawBuffer");
+    p_WindowsCreateString = (pWindowsCreateString)gpa(cb, "WindowsCreateString");
+    real_RoGetActivationFactory = (pRoGetActivationFactory)gpa(cb, "RoGetActivationFactory");
 }
 
 /* Windows.Data.Json.JsonObject statics (Parse/TryParse). Wine's windows.web has JsonValue statics
