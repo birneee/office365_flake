@@ -83,7 +83,7 @@
       uiaShim = pkgs.callPackage ./uia-shim { };
       ole32ShimGE = pkgs.callPackage ./ole32-shim { runner = protonGE; runnerName = "ge"; };
       ole32ShimSoda = pkgs.callPackage ./ole32-shim { runner = protosoda; runnerName = "protosoda"; };
-      # newer Direct2D for both runners' Wine 11.0 base (ribbon controls rendered as grey blocks)
+      # newer, patched Direct2D for both runners' Wine 11.0 base (grey ribbon blocks, PowerPoint crash)
       d2d1Fix = pkgs.callPackage ./d2d1-fix { wine = pkgs.wine64Packages.unstable; };
 
       # Selawik: Microsoft's open-source (MIT) metric-compatible stand-in for Segoe UI, the Office UI

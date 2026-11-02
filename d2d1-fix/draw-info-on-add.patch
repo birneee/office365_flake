@@ -1,0 +1,58 @@
+--- a/dlls/d2d1/effect.c
++++ b/dlls/d2d1/effect.c
+@@ -613,10 +613,30 @@
+     return NULL;
+ }
+ 
++static HRESULT d2d_effect_render_info_create(struct d2d_render_info **obj);
++static void d2d_transform_graph_delete_node(struct d2d_transform_graph *graph,
++        struct d2d_transform_node *node);
++
++/* Windows hands a draw transform its draw info as soon as it joins the graph, so effects may use it
++ * from within ID2D1EffectImpl::Initialize (Office's effects call SetInputDescription there). */
++static HRESULT d2d_transform_node_set_draw_info(struct d2d_transform_node *node)
++{
++    ID2D1DrawTransform *draw_transform;
++    HRESULT hr;
++
++    if (FAILED(ID2D1TransformNode_QueryInterface(node->object, &IID_ID2D1DrawTransform, (void **)&draw_transform)))
++        return S_OK;
++    if (SUCCEEDED(hr = d2d_effect_render_info_create(&node->render_info)))
++        hr = ID2D1DrawTransform_SetDrawInfo(draw_transform, &node->render_info->ID2D1DrawInfo_iface);
++    ID2D1DrawTransform_Release(draw_transform);
++    return hr;
++}
++
+ static HRESULT d2d_transform_graph_add_node(struct d2d_transform_graph *graph,
+         ID2D1TransformNode *object)
+ {
+     struct d2d_transform_node *node;
++    HRESULT hr;
+ 
+     if (!(node = calloc(1, sizeof(*node))))
+         return E_OUTOFMEMORY;
+@@ -631,7 +651,13 @@
+     ID2D1TransformNode_AddRef(node->object);
+     list_add_tail(&graph->nodes, &node->entry);
+ 
+-    return S_OK;
++    if (FAILED(hr = d2d_transform_node_set_draw_info(node)))
++    {
++        WARN("Failed to set draw info, hr %#lx.\n", hr);
++        d2d_transform_graph_delete_node(graph, node);
++    }
++
++    return hr;
+ }
+ 
+ static void d2d_transform_node_disconnect(struct d2d_transform_node *node)
+@@ -3453,6 +3479,9 @@
+ 
+     LIST_FOR_EACH_ENTRY(node, &graph->nodes, struct d2d_transform_node, entry)
+     {
++        if (node->render_info)
++            continue;
++
+         if (d2d_transform_node_needs_render_info(node))
+         {
+             if (FAILED(hr = d2d_effect_render_info_create(&node->render_info)))

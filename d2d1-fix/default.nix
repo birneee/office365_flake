@@ -10,17 +10,27 @@
 # take d2d1.dll from a Wine that has it. d2d1 only imports public APIs (d3d10_1, d3dcompiler, gdi32,
 # user32, ntdll, ucrtbase), so it runs fine on the older Proton Wine.
 #
+# draw-info-on-add.patch: Office's custom effects use their draw info inside Initialize (PowerPoint
+# crashed opening a presentation); Wine only hands it out after Initialize returned. Patching means
+# building Wine from source instead of taking it from the binary cache.
+# TODO: drop the patch once upstream Wine sets the draw info when a node is added
+#
 # Wine loads a "Wine builtin DLL" found in system32 by looking the name up in its own DLL directories
 # instead, so the copy would be ignored; blank the signature (offset 64 of the DOS stub) and let the
 # launcher register the file as a native override.
 { stdenvNoCC, wine }:
+let
+  patchedWine = wine.overrideAttrs (prev: {
+    patches = (prev.patches or [ ]) ++ [ ./draw-info-on-add.patch ];
+  });
+in
 stdenvNoCC.mkDerivation {
   pname = "d2d1-fix";
   version = wine.version;
   dontUnpack = true;
   buildPhase = ''
     runHook preBuild
-    cp ${wine}/lib/wine/x86_64-windows/d2d1.dll d2d1.dll
+    cp ${patchedWine}/lib/wine/x86_64-windows/d2d1.dll d2d1.dll
     chmod u+w d2d1.dll
     sig="Wine builtin DLL"
     [ "$(dd if=d2d1.dll bs=1 skip=64 count=16 2>/dev/null)" = "$sig" ] || { echo "no builtin signature at offset 64"; exit 1; }
@@ -32,5 +42,5 @@ stdenvNoCC.mkDerivation {
     install -Dm644 d2d1.dll $out/lib/wine/x86_64-windows/d2d1.dll
     runHook postInstall
   '';
-  meta.description = "Wine ${wine.version} d2d1.dll with the geometry-group fill-mode fix, loadable as a native DLL";
+  meta.description = "Wine ${wine.version} d2d1.dll with the geometry-group fill-mode fix and draw info on node add, loadable as a native DLL";
 }
