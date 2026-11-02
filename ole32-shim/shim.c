@@ -86,6 +86,16 @@ static HRESULT WINAPI my_CreateStdAccessibleProxyA(HWND hwnd, LPCSTR cls, LONG i
     return my_CreateStdAccessibleProxyW(hwnd, NULL, idObject, riid, ppv);
 }
 
+/* Wine's combase exports RoTransformError as an aborting stub. C++/WinRT calls it whenever it turns
+ * one failure into another (react-native-win32 does when a WinRT call fails, e.g. the Windows.Web.Http
+ * stand-ins below), which took PowerPoint down a minute after a presentation opened. The function only
+ * forwards error details to a debugger; FALSE means none were reported, which callers ignore. */
+static BOOL WINAPI my_RoTransformError(HRESULT old_error, HRESULT new_error, void *message)
+{
+    (void)old_error; (void)new_error; (void)message;
+    return FALSE;
+}
+
 struct patch { const char *dll; const char *fn; void *repl; };
 
 /* ---- replacements for functions Office delay-loads that Wine's DLLs do not export ----------
@@ -225,6 +235,7 @@ static FARPROC WINAPI my_GetProcAddress(HMODULE h, LPCSTR name)
 static const struct patch STUBPATCHES[] = {
     { "oleacc.dll", "CreateStdAccessibleProxyW", (void *)my_CreateStdAccessibleProxyW },
     { "oleacc.dll", "CreateStdAccessibleProxyA", (void *)my_CreateStdAccessibleProxyA },
+    { "combase.dll", "RoTransformError", (void *)my_RoTransformError },
 };
 #define NSTUBPATCHES (sizeof(STUBPATCHES) / sizeof(STUBPATCHES[0]))
 
