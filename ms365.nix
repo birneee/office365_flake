@@ -28,12 +28,13 @@
 }:
 
 let
+  # icon: the app's name in icon themes such as Papirus; apps without one keep the entry's own name
   apps = {
-    word       = { exe = "WINWORD.EXE";  name = "Microsoft Word";       mime = "application/msword;application/vnd.openxmlformats-officedocument.wordprocessingml.document;application/rtf;"; };
-    excel      = { exe = "EXCEL.EXE";    name = "Microsoft Excel";      mime = "application/vnd.ms-excel;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.ms-excel.sheet.macroenabled.12;application/vnd.openxmlformats-officedocument.spreadsheetml.template;application/vnd.ms-excel.template.macroenabled.12;application/vnd.ms-excel.sheet.binary.macroenabled.12;text/csv;"; };
-    powerpoint = { exe = "POWERPNT.EXE"; name = "Microsoft PowerPoint"; mime = "application/vnd.ms-powerpoint;application/vnd.openxmlformats-officedocument.presentationml.presentation;"; };
-    outlook    = { exe = "OUTLOOK.EXE";  name = "Microsoft Outlook";    mime = "message/rfc822;"; };
-    onenote    = { exe = "ONENOTE.EXE";  name = "Microsoft OneNote";    mime = ""; };
+    word       = { exe = "WINWORD.EXE";  name = "Microsoft Word";       icon = "ms-word";       mime = "application/msword;application/vnd.openxmlformats-officedocument.wordprocessingml.document;application/rtf;"; };
+    excel      = { exe = "EXCEL.EXE";    name = "Microsoft Excel";      icon = "ms-excel";      mime = "application/vnd.ms-excel;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.ms-excel.sheet.macroenabled.12;application/vnd.openxmlformats-officedocument.spreadsheetml.template;application/vnd.ms-excel.template.macroenabled.12;application/vnd.ms-excel.sheet.binary.macroenabled.12;text/csv;"; };
+    powerpoint = { exe = "POWERPNT.EXE"; name = "Microsoft PowerPoint"; icon = "ms-powerpoint"; mime = "application/vnd.ms-powerpoint;application/vnd.openxmlformats-officedocument.presentationml.presentation;"; };
+    outlook    = { exe = "OUTLOOK.EXE";  name = "Microsoft Outlook";    icon = "ms-outlook";    mime = "message/rfc822;"; };
+    onenote    = { exe = "ONENOTE.EXE";  name = "Microsoft OneNote";    icon = "ms-onenote";    mime = ""; };
     access     = { exe = "MSACCESS.EXE"; name = "Microsoft Access";     mime = "application/msaccess;"; };
     publisher  = { exe = "MSPUB.EXE";    name = "Microsoft Publisher";  mime = "application/vnd.ms-publisher;"; };
   };
@@ -75,7 +76,7 @@ let
     desktopName = "${app.name}${desktopSuffix}";
     genericName = app.name;
     exec = "${cliName}-${key} %F";
-    icon = "${cliName}-${key}";
+    icon = app.icon or "${cliName}-${key}";
     terminal = false;
     categories = [ "Office" ];
     mimeTypes = lib.filter (s: s != "") (lib.splitString ";" app.mime);
