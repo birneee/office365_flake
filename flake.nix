@@ -81,6 +81,7 @@
 
       sppcShim = pkgs.callPackage ./sppc { };
       uiaShim = pkgs.callPackage ./uia-shim { };
+      mfSensorGroupStub = pkgs.callPackage ./mfsensorgroup-stub { };
       ole32ShimGE = pkgs.callPackage ./ole32-shim { runner = protonGE; runnerName = "ge"; };
       ole32ShimSoda = pkgs.callPackage ./ole32-shim { runner = protosoda; runnerName = "protosoda"; };
       # newer, patched Direct2D for both runners' Wine 11.0 base (grey ribbon blocks, PowerPoint crash)
@@ -94,7 +95,7 @@
         stripRoot = false;
       };
 
-      launcherDeps = { inherit protonGE protosoda sppcShim ole32ShimGE ole32ShimSoda uiaShim d2d1Fix selawik; };
+      launcherDeps = { inherit protonGE protosoda sppcShim ole32ShimGE ole32ShimSoda uiaShim mfSensorGroupStub d2d1Fix selawik; };
 
       ms365 = pkgs.callPackage ./ms365.nix launcherDeps;
 
@@ -137,7 +138,7 @@
     {
       packages.${system} = {
         default = ms365;
-        inherit ms365 office2024 shortcuts protosoda protonGE sppcShim ole32ShimGE ole32ShimSoda uiaShim d2d1Fix;
+        inherit ms365 office2024 shortcuts protosoda protonGE sppcShim ole32ShimGE ole32ShimSoda uiaShim mfSensorGroupStub d2d1Fix;
       };
 
       apps.${system} = {

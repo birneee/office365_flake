@@ -388,6 +388,7 @@ install_shims() {
   put_dll "$(runner_path)/files/lib/wine/x86_64-windows/ole32.dll" ole32_wine.dll
   put_dll "$(ole32_shim_for_runner)" ole32.dll
   put_dll "$MS365_UIA_SHIM" ms365uia.dll
+  put_dll "$MS365_MFSENSORGROUP_STUB" mfsensorgroup.dll
   put_dll "$MS365_D2D1_DLL" d2d1.dll
   # the same shim once more under its own name, loaded into every process through AppInit_DLLs:
   # Excel never delay-loads ole32, so the ole32 forwarder alone would leave it without the shim
@@ -655,6 +656,7 @@ cmd_run() {
     put_dll "$(runner_path)/files/lib/wine/x86_64-windows/ole32.dll" ole32_wine.dll
     put_dll "$(ole32_shim_for_runner)" ole32.dll
     put_dll "$MS365_UIA_SHIM" ms365uia.dll
+    put_dll "$MS365_MFSENSORGROUP_STUB" mfsensorgroup.dll
     put_dll "$MS365_D2D1_DLL" d2d1.dll
     put_dll "$(ole32_shim_for_runner)" ms365shim.dll
     # a prefix update rewrites Wine's own class registrations; put ours back when they are gone.

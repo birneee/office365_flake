@@ -15,6 +15,7 @@
 , ole32ShimGE
 , ole32ShimSoda
 , uiaShim
+, mfSensorGroupStub
 , d2d1Fix
 , selawik
   # Variant knobs: the same launcher, packaged under another command name with other defaults
@@ -53,11 +54,12 @@ let
       MS365_OLE32_SHIM_GE=${ole32ShimGE}/lib/wine/x86_64-windows/ole32.dll
       MS365_OLE32_SHIM_SODA=${ole32ShimSoda}/lib/wine/x86_64-windows/ole32.dll
       MS365_UIA_SHIM=${uiaShim}/lib/wine/x86_64-windows/ms365uia.dll
+      MS365_MFSENSORGROUP_STUB=${mfSensorGroupStub}/lib/wine/x86_64-windows/mfsensorgroup.dll
       MS365_D2D1_DLL=${d2d1Fix}/lib/wine/x86_64-windows/d2d1.dll
       MS365_MSI_COMPONENTS=${./msi-components.py}
       MS365_UI_FONTS=${selawik}
       MS365_MESA=${mesa}
-      export MS365_UI_FONTS MS365_MESA MS365_PROTON_GE MS365_PROTOSODA MS365_SPPC_SHIM MS365_OLE32_SHIM_GE MS365_OLE32_SHIM_SODA MS365_UIA_SHIM MS365_D2D1_DLL MS365_MSI_COMPONENTS
+      export MS365_UI_FONTS MS365_MESA MS365_PROTON_GE MS365_PROTOSODA MS365_SPPC_SHIM MS365_OLE32_SHIM_GE MS365_OLE32_SHIM_SODA MS365_UIA_SHIM MS365_MFSENSORGROUP_STUB MS365_D2D1_DLL MS365_MSI_COMPONENTS
       ${builtins.readFile ./ms365.sh}
     '';
   };
